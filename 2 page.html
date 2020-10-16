@@ -1,0 +1,191 @@
+<script type="text/javascript">
+	$(document).ready(() => {
+		let isExpanded = false
+		const tables = [
+			{
+				tab: "[data-elem-id='1602482626639'] > div",//5s
+				short: "#rec239608747",
+				full: "#rec239608748",
+				button: "#rec239608749",
+			},
+			{
+				tab: "[data-elem-id='1602579412145'] > div",//6
+				short: "#rec239608751",
+				full: "#rec239608752",
+				button: "#rec239608753",
+			},
+			{
+				tab: "[data-elem-id='1602579424503'] > div",//6+
+				short: "#rec239608755",
+				full: "#rec239608756",
+				button: "#rec239608757",
+			},
+			{
+				tab: "[data-elem-id='1602579446624'] > div",
+				short: "#rec239608759",
+				full: "#rec239608760",
+				button: "#rec239608761",
+			},
+			{
+				tab: "[data-elem-id='1602585643779'] > div",
+				short: "#rec239609034",
+				full: "#rec239609035",
+				button: "#rec239609036",
+			},
+			{
+				tab: "[data-elem-id='1602585643786'] > div",
+				short: "#rec239609038",
+				full: "#rec239609039",
+				button: "#rec239609040",
+			},
+			{
+				tab: "[data-elem-id='1602585643791'] > div",
+				short: "#rec239609299",
+				full: "#rec239609300",
+				button: "#rec239609301",
+			},
+			{
+				tab: "[data-elem-id='1602585643796'] > div",
+				short: "#rec239609303",
+				full: "#rec239609304",
+				button: "#rec239609305",
+			},
+			{
+				tab: "[data-elem-id='1602588292438'] > div",
+				short: "#rec239609476",
+				full: "#rec239609477",
+				button: "#rec239609478",
+			},
+			{
+				tab: "[data-elem-id='1602588292442'] > div",
+				short: "#rec239609481",
+				full: "#rec239609482",
+				button: "#rec239609483",
+			},
+			{
+				tab: "[data-elem-id='1602588397767'] > div",
+				short: "#rec239609485",
+				full: "#rec239609486",
+				button: "#rec239609487",
+			},
+			{
+				tab: "[data-elem-id='1602588397771'] > div",
+				short: "#rec239609605",
+				full: "#rec239609606",
+				button: "#rec239609607",
+			},
+			{
+				tab: "[data-elem-id='1602588397776'] > div",
+				short: "#rec239609609",
+				full: "#rec239609610",
+				button: "#rec239609611",
+			},
+			{
+				tab: "[data-elem-id='1602588397779'] > div",
+				short: "#rec239609613",
+				full: "#rec239609614",
+				button: "#rec239609615",
+			},
+			{
+				tab: "[data-elem-id='1602588397784'] > div",
+				short: "#rec239609882",
+				full: null,
+				button: null,
+			},
+			{
+				tab: "[data-elem-id='1602588397789'] > div",
+				short: "#rec239609884",
+				full: null,
+				button: null,
+			},
+			{
+				tab: "[data-elem-id='1602588397794'] > div",
+				short: "#rec239609886",
+				full: null,
+				button: null,
+			},
+		].map(item => ({
+			tab: document.querySelector(item.tab),
+			short: document.querySelector(item.short),
+			full: item.full ? document.querySelector(item.full) : null,
+			button: item.full ? document.querySelector(item.button) : null,
+		}))
+
+		const tableToggle = index => {
+			if (isExpanded) {
+				tables[index].full.style.display = "none"
+				tables[index].button.querySelector(".tn-atom").innerHTML = "Смотреть полный прайс"
+				isExpanded = false
+			}
+			else {
+				tables[index].full.style.display = "block"
+				tables[index].button.querySelector(".tn-atom").innerHTML = "Скрыть полный прайс"
+				isExpanded = true
+			}
+		}
+		const tabChange = index => {
+			isExpanded = false
+			tables.forEach((item, tabIndex) => {
+				if (index === tabIndex) {
+					item.full && (item.full.style.display = "none")
+					item.short.style.display = "block"
+					if (item.button) {
+						item.button.style.display = "block"
+						item.button.querySelector(".tn-atom").innerHTML = "Смотреть полный прайс"
+					}
+
+					item.tab.style.backgroundColor = "#8296A4"
+					item.tab.style.color = "white"
+				}
+				else {
+					item.full && (item.full.style.display = "none")
+					item.short.style.display = "none"
+					if (item.button) {
+						item.button.style.display = "none"
+						item.button.querySelector(".tn-atom").innerHTML = "Смотреть полный прайс"
+					}
+
+					item.tab.style.backgroundColor = ""
+					item.tab.style.color = ""
+				}
+			})
+		}
+
+		tables.forEach((item, index) => {
+			if (item.button) {
+				item.button.querySelector(".tn-atom").addEventListener("click", () => tableToggle(index))
+				item.button.querySelector(".tn-atom").style.cursor = "pointer"
+			}
+			item.tab.addEventListener("click", () => tabChange(index))
+			item.tab.style.cursor = "pointer"
+		})
+
+		tabChange(0)
+
+
+		const months = ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"];
+		const getUnixTime = () => {
+			return new Date().valueOf() + 1000 * 60 * 60 * (new Date().getTimezoneOffset() / 60); // получаем чистую дату без смещения
+		};
+		const getUnixOffset = offset => {
+			return getUnixTime() + 1000 * 60 * 60 * offset; //добавляем к чистой дате смещение. оффсет - часы
+		};
+		const getFourthDay = () => {
+			const tomorrow = new Date(getUnixOffset(3) + 1000 * 60 * 60 * 24 * 4); //завтрашний день
+
+			const date = tomorrow.getDate();
+			const month = tomorrow.getMonth();
+			return {
+				date: date,
+				monthText: months[month],
+			};
+		};
+
+		setTimeout(() => {
+			Array.from(document.querySelectorAll("tbody > tr:nth-of-type(1) > td:nth-of-type(3), tbody > tr:nth-of-type(2) > td:nth-of-type(3)")).forEach(item => {
+				const dateInfo = getFourthDay()
+				item.innerHTML = item.innerHTML.replace(/до.+/, `до ${dateInfo.date} ${dateInfo.monthText}`)
+			})
+		}, 100)
+	})
+</script>
