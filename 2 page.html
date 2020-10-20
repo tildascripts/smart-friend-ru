@@ -1,6 +1,9 @@
 <script type="text/javascript">
 	$(document).ready(() => {
+		const checkMobile = () => document.documentElement.offsetWidth < 480
+
 		let isExpanded = false
+		let activeTab = 0
 		const tables = [
 			{
 				tab: "[data-elem-id='1602482626639'] > div",//5s
@@ -107,28 +110,43 @@
 		].map(item => ({
 			tab: document.querySelector(item.tab),
 			short: document.querySelector(item.short),
+			shortMobile: document.querySelector(`${item.short} + div`),
 			full: item.full ? document.querySelector(item.full) : null,
-			button: item.full ? document.querySelector(item.button) : null,
+			fullMobile: item.full ? document.querySelector(`${item.full} + div`) : null,
+			button: item.button ? document.querySelector(item.button) : null,
 		}))
 
 		const tableToggle = index => {
+			const isMobile = checkMobile()
 			if (isExpanded) {
-				tables[index].full.style.display = "none"
+				tables[index].full && (tables[index].full.style.display = "none")
+				tables[index].fullMobile && (tables[index].fullMobile.style.display = "none")
 				tables[index].button.querySelector(".tn-atom").innerHTML = "Смотреть полный прайс"
 				isExpanded = false
 			}
 			else {
-				tables[index].full.style.display = "block"
+				if (isMobile) {
+					tables[index].full && (tables[index].full.style.display = "none")
+					tables[index].fullMobile && (tables[index].fullMobile.style.display = "block")
+				}
+				else {
+					tables[index].full && (tables[index].full.style.display = "block")
+					tables[index].fullMobile && (tables[index].fullMobile.style.display = "none")
+				}
 				tables[index].button.querySelector(".tn-atom").innerHTML = "Скрыть полный прайс"
 				isExpanded = true
 			}
 		}
-		const tabChange = index => {
+		const tabChange = (index) => {
 			isExpanded = false
+			activeTab = index
+			const isMobile = checkMobile()
 			tables.forEach((item, tabIndex) => {
 				if (index === tabIndex) {
 					item.full && (item.full.style.display = "none")
-					item.short.style.display = "block"
+					item.fullMobile && (item.fullMobile.style.display = "none")
+					item.short.style.display = isMobile ? "none" : "block"
+					item.shortMobile.style.display = isMobile ? "block" : "none"
 					if (item.button) {
 						item.button.style.display = "block"
 						item.button.querySelector(".tn-atom").innerHTML = "Смотреть полный прайс"
@@ -139,7 +157,9 @@
 				}
 				else {
 					item.full && (item.full.style.display = "none")
+					item.fullMobile && (item.fullMobile.style.display = "none")
 					item.short.style.display = "none"
+					item.shortMobile.style.display = "none"
 					if (item.button) {
 						item.button.style.display = "none"
 						item.button.querySelector(".tn-atom").innerHTML = "Смотреть полный прайс"
@@ -162,6 +182,15 @@
 
 		tabChange(0)
 
+		const onResize = () => {
+			if (isExpanded === true) {
+				tabChange(activeTab)
+				tableToggle(activeTab)
+			}
+			else {
+				tabChange(activeTab)
+			}
+		}
 
 		const months = ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"];
 		const getUnixTime = () => {
@@ -182,10 +211,20 @@
 		};
 
 		setTimeout(() => {
-			Array.from(document.querySelectorAll("tbody > tr:nth-of-type(1) > td:nth-of-type(3), tbody > tr:nth-of-type(2) > td:nth-of-type(3)")).forEach(item => {
+			Array.from(document.querySelectorAll("tbody > tr:nth-of-type(1) > td:nth-of-type(3), tbody > tr:nth-of-type(2) > td:nth-of-type(3), tbody > tr:nth-of-type(1) > td:nth-of-type(2), tbody > tr:nth-of-type(2) > td:nth-of-type(2)")).forEach(item => {
 				const dateInfo = getFourthDay()
 				item.innerHTML = item.innerHTML.replace(/до.+/, `до ${dateInfo.date} ${dateInfo.monthText}`)
 			})
 		}, 100)
+
+		window.addEventListener("resize", onResize)
+
+
+		const match = window.location.search.match(/pm_source=(.+?)&/)
+		let inputValue = null
+		if (match && match[1]) {
+			inputValue = match[1]
+		}
+		Array.from(document.querySelectorAll("input[type='hidden'][name='pm-source']")).forEach(item => item.value = inputValue)
 	})
 </script>
